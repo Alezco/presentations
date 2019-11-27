@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Event loop</title>
+
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/reveal.css">
+    <link rel="stylesheet" href="../css/theme/black.css">
+
+    <link rel="stylesheet" href="../lib/css/monokai.css">
+
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? '../css/print/pdf.css' : '../css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section>
+            Event loop
+        </section>
+        <section>
+            "JavaScript is asynchronous and single-threaded"
+        </section>
+        <section>
+            <h2>How?</h2>
+            <img data-src="../img/eventloop/event-loop.jpeg" class="stretch">
+        </section>
+        <section>
+            <h2>Heap</h2>
+            <p>Objects are allocated in a heap (large mostly unstructured regions of memory)</p>
+        </section>
+        <section>
+            <h2>Stack</h2>
+            <p>Represents the single thread provided for JavaScript code execution. Function calls are stacked</p>
+        </section>
+        <section>
+            <h2>Browser or Web APIs</h2>
+            <ul>
+                <li>Built into the browser</li>
+                <li>Expose data from the browser</li>
+                <li>Not part of the JavaScript language itself, built on top of it</li>
+            </ul>
+        </section>
+        <section>
+            <img data-src="../img/eventloop/jim-carrey.gif">
+        </section>
+        <section>
+            <h2>Example</h2>
+            <div data-markdown>
+                ```js
+                function main() {
+                    console.log('A');
+                    setTimeout(function display() {
+                        console.log('B');
+                    }, 0);
+                    console.log('C');
+                }
+                main();
+                ```
+            </div>
+            <div data-markdown class="fragment fade-in">
+                ```js
+                A
+                C
+                B
+                ```
+            </div>
+        </section>
+        <section>
+            <img data-src="../img/eventloop/step1.png" class="stretch">
+        </section>
+        <section>
+            <h2>1 - console.log('A')</h2>
+            <ul>
+                <li>Call to main() -> stack</li>
+                <li><code>main()</code>'s first statement -> stack</li>
+                <li>A is displayed in the console</li>
+            </ul>
+        </section>
+        <section>
+            <img data-src="../img/eventloop/step2.png" class="stretch">
+        </section>
+        <section>
+            <h2>2 - setTimeout</h2>
+            <ul>
+                <li><code>setTimeout</code> (with callback exec() and 0ms) -> stack</li>
+                <li>Execution starts</li>
+                <li><code>setTimeout</code> function uses a Browser API to delay a callback to the provided function</li>
+                <li><code>setTimeout</code> is popped out once the handover to browser is complete (for the timer of 0ms)</li>
+            </ul>
+        </section>
+        <section>
+            <img data-src="../img/eventloop/step3.png" class="stretch">
+        </section>
+        <section>
+            <h2>3 - console.log(‘C’)</h2>
+            <ul>
+                <li><code>console.log(‘C’)</code> -> stack</li>
+                <li>Meanwhile, the timer runs in the browser for the callback to the <code>exec()</code> function</li>
+                <li>Here with 0ms, the callback will be added to the message queue as soon as the browser receives it</li>
+            </ul>
+        </section>
+        <section>
+            <img data-src="../img/eventloop/step4.png" class="stretch">
+        </section>
+        <section>
+            <h2>4 - Message queue</h2>
+            <ul>
+                <li><code>console.log('C')</code> popped out</li>
+                <li><code>main()</code> popped out</li>
+                <li>call stack empty</li>
+                <li>Browser can push messages from the queue to call stack</li>
+            </ul>
+        </section>
+        <section>
+            <img data-src="../img/eventloop/step5.png" class="stretch">
+        </section>
+        <section>
+            <h2>5 - exec</h2>
+            <ul>
+                <li><code>exec()</code> callback -> call stack</li>
+                <li>exec executed</li>
+                <li>B is displayed in the console</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Conclusion</h2>
+            <ul>
+                <li>In <code>setTimeout(function, delayTime)</code>, delayTime != delay after which the function is executed</li>
+                <li>It is the minimum wait time after which at some point the function will be executed</li>
+            </ul>
+        </section>
+        <section>
+            <h2>More (from Node doc)</h2>
+            <img data-src="../img/eventloop/advanced.png" class="stretch">
+        </section>
+        <section>
+            <h2>More (from Node doc)</h2>
+            <ul>
+                <li>timers: this phase executes callbacks scheduled by setTimeout() and setInterval()</li>
+                <li>pending callbacks: executes I/O callbacks deferred to the next loop iteration</li>
+                <li>idle, prepare: only used internally</li>
+            </ul>
+        </section>
+        <section>
+            <h2>More (from Node doc)</h2>
+            <ul>
+                <li>poll: retrieve new I/O events; execute I/O related callbacks (almost all with the exception of close callbacks, the ones scheduled by timers, and setImmediate());- node will block here when appropriate</li>
+                <li>check: setImmediate() callbacks are invoked here</li>
+                <li>close callbacks: some close callbacks, e.g. socket.on('close', ...)</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Links</h2>
+            <ul>
+                <li><a href="https://medium.com/front-end-weekly/javascript-event-loop-explained-4cd26af121d4">Medium</a></li>
+                <li><a href="https://developer.mozilla.org/fr/docs/Web/JavaScript/Concurrence_et_boucle_des_%C3%A9v%C3%A9nements">Mozilla</a></li>
+                <li><a href="https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/">Node documentation</a></li>
+            </ul>
+        </section>
+        <section>
+            <img data-src="../img/eventloop/end.png">
+        </section>
+    </div>
+</div>
+
+<script src="../js/reveal.js"></script>
+
+<script>
+    Reveal.initialize({
+        dependencies: [
+            { src: '../plugin/markdown/marked.js' },
+            { src: '../plugin/markdown/markdown.js' },
+            { src: '../plugin/notes/notes.js', async: true },
+            { src: '../plugin/highlight/highlight.js', async: true }
+        ]
+    });
+</script>
+</body>
+</html>

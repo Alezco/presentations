@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>WTF JS</title>
+
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/reveal.css">
+    <link rel="stylesheet" href="../css/theme/black.css">
+
+    <link rel="stylesheet" href="../lib/css/monokai.css">
+
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? '../css/print/pdf.css' : '../css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section>
+            WTF JS
+        </section>
+        <section>
+            <code class="hljs">[] + []</code>
+            <p class="fragment fade-in">""</p>
+        </section>
+        <section>
+            <code class="hljs">[] + {}</code>
+            <code class="fragment fade-in">[object Object]</code>
+        </section>
+        <section>
+            <code class="hljs">{} + []</code>
+            <p class="fragment fade-in">0</p>
+        </section>
+        <section>
+            <code class="hljs">{} + {}</code>
+            <p class="fragment fade-in">
+                [object Object][object Object] <span class="fragment fade-in">(Node/Chrome) <br/>...or NaN (Firefox)</span>
+            </p>
+        </section>
+        <section>
+            <img data-src="../img/wtfjs/wat.jpg">
+        </section>
+        <section>
+            <code class="hljs">Array(10)</code>
+            <p class="fragment fade-in">,,,,,,,,,</p>
+        </section>
+        <section>
+            <code class="hljs">Array(10).join('wat')</code>
+            <p class="fragment fade-in">watwatwatwatwatwatwatwatwatwat</p>
+        </section>
+        <section>
+            <code class="hljs">Array(10).join('wat' + 1)</code>
+            <p class="fragment fade-in">wat1wat1wat1wat1wat1wat1wat1wat1wat1wat1</p>
+        </section>
+        <section>
+            <code class="hljs">Array(10).join('wat'-1)<span class="fragment fade-in">&nbsp;+&nbsp;"&nbsp;Batman!"</span></code>
+            <p class="fragment fade-in">NaNNaNNaNNaNNaNNaNNaNNaNNaNNaN Batman!</p>
+        </section>
+        <section>
+            <img data-src="../img/wtfjs/batman.png">
+        </section>
+        <section>
+            <h2>What happens?</h2>
+            <ul>
+                <li><code>GetValue</code> called on both sides of <code>+</code></li>
+                <li><code>ToPrimitive</code> called after</li>
+                <li><code>GetValue + ToPrimitive</code> => <code>toString()</code> then concatenate</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Explanation : [] + []</h2>
+            <div data-markdown>
+                ```js
+                [].toString() = ''
+                ```
+            </div>
+            <div data-markdown class="fragment fade-in">
+                ```js
+                ToPrimitive(GetValue(([])) + ToPrimitive(GetValue(([])) =
+                ToPrimitive([]) + ToPrimitive([]) =
+                [].toString() + [].toString() =
+                '' + '' =
+                ''
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Explanation : [] + {}</h2>
+            <ul>
+                <li><code>Object.prototype.toString()</code> => <code>'[object ' + class + ']'</code></li>
+                <li>class => <code>{}.constructor.name</code> => <code>'Object'</code></li>
+            </ul>
+            <div data-markdown class="fragment fade-in">
+                ```js
+                ToPrimitive(GetValue(([])) + ToPrimitive(GetValue(({})) =
+                ToPrimitive([]) + ToPrimitive({}) =
+                [].toString() + {}.toString() =
+                '' + '[object Object]' =
+                '[object Object]'
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Explanation : {} + {} (Node/Chrome)</h2>
+            <div data-markdown>
+                ```js
+                ToPrimitive(GetValue(({})) + ToPrimitive(GetValue(({})) =
+                ToPrimitive({}) + ToPrimitive({}) =
+                {}.toString() + {}.toString() =
+                '[object Object]' + '[object Object]' =
+                '[object Object][object Object]'
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Explanation : {} + {} (Firefox)</h2>
+            <ul>
+                <li><code>{} + {}</code> => <code>+{}</code> (first {} considered as a code block)</li>
+                <li><code>ToNumber()</code></li>
+                <li>number => number</li>
+                <li>empty string => 0</li>
+                <li>truthy and falsy values => 1 and 0</li>
+                <li>anything else => NaN</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Explanation : {} + {} (Firefox)</h2>
+            <div data-markdown>
+                ```js
+                +ToNumber(ToPrimitive(GetValue({}))) =
+                +ToNumber(ToPrimitive({})) =
+                +ToNumber({}.toString()) =
+                ToNumber('[object Object]') =
+                NaN
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Explanation : {} + []</h2>
+            <div data-markdown>
+                ```js
+                +ToNumber(ToPrimitive(GetValue([]))) =
+                +ToNumber(ToPrimitive([])) =
+                +ToNumber([].toString()) =
+                ToNumber('') =
+                0
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Explanation : Batman</h2>
+            <ul>
+                <li><code>Array(10)</code> => Array of 10 elements</li>
+                <li>Then we append 'wat' => <code>[1,2,3].join('hi')</code> => 1hi2hi3</li>
+                <li>Then we concatenate ' Batman!'</li>
+                <li><code>'wat' — 1</code> => <code>NaN</code></li>
+                <li>=> Batman</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Links</h2>
+            <ul>
+                <li><a href="https://www.destroyallsoftware.com/talks/wat">Gary Bernhardt’s “Wat” </a></li>
+                <li><a href="https://medium.com/dailyjs/the-why-behind-the-wat-an-explanation-of-javascripts-weird-type-system-83b92879a8db">Medium explanation</a></li>
+                <li><a href="https://github.com/denysdovhan/wtfjs">GitHub : wtfjs</a></li>
+            </ul>
+        </section>
+        <section>
+            <img data-src="../img/wtfjs/end.jpeg">
+        </section>
+    </div>
+</div>
+
+<script src="../js/reveal.js"></script>
+
+<script>
+    Reveal.initialize({
+        dependencies: [
+            { src: '../plugin/markdown/marked.js' },
+            { src: '../plugin/markdown/markdown.js' },
+            { src: '../plugin/notes/notes.js', async: true },
+            { src: '../plugin/highlight/highlight.js', async: true }
+        ]
+    });
+</script>
+</body>
+</html>
