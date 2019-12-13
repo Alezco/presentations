@@ -24,7 +24,7 @@
 <div class="reveal">
     <div class="slides">
         <section>
-            Event loop
+            Event loop basics
         </section>
         <section>
             "JavaScript is asynchronous and single-threaded"
@@ -58,7 +58,7 @@
                 ```js
                 function main() {
                     console.log('A');
-                    setTimeout(function display() {
+                    setTimeout(function exec() {
                         console.log('B');
                     }, 0);
                     console.log('C');
