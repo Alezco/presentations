@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Floating point numbers</title>
+
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/reveal.css">
+    <link rel="stylesheet" href="../css/theme/black.css">
+
+    <link rel="stylesheet" href="../lib/css/monokai.css">
+
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? '../css/print/pdf.css' : '../css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section>
+            Floating point numbers in JS
+        </section>
+        <section>
+            <h2>Javascript</h2>
+            <code class="hljs">1 + 1</code>
+            <p class="fragment fade-in">2</p>
+        </section>
+        <section>
+            <h2>Javascript</h2>
+            <code class="hljs">0.1 + 0.1</code>
+            <p class="fragment fade-in">0.2</p>
+        </section>
+        <section>
+            <h2>Javascript</h2>
+            <code class="hljs">0.1 + 0.2</code>
+            <p class="fragment fade-in">0.30000000000000004</p>
+        </section>
+        <section>
+            <h2>Java</h2>
+            <code class="hljs">0.1 + 0.2</code>
+            <p class="fragment fade-in">0.30000000000000004</p>
+        </section>
+        <section>
+            <h2>Java</h2>
+            <code class="hljs">0.1f + 0.2f</code>
+            <p class="fragment fade-in">0.3</p>
+        </section>
+        <section>
+            <img data-src="../img/floatingpoint/math.jpg">
+        </section>
+        <section style="top: unset">
+            <iframe width="100%" style="height: -webkit-fill-available" data-src="https://0.30000000000000004.com/" data-preload></iframe>
+        </section>
+        <section>
+            <h2>IEEE 754</h2>
+            <img data-src="../img/floatingpoint/ieee754.png">
+        </section>
+        <section>
+            <ul>
+                <li>Sign: <b>0</b> => positive, <b>1</b> => negative</li>
+                <li>Exponent: number of digits left or right the floating point that should be shifted</li>
+                <li>Mantissa: binary digits of the number. Whole numbers => <b>2<sup>x</sup></b>, decimals => <b>2<sup>-x</sup> (or 1/2<sup>x</sup>)</b></li>
+            </ul>
+        </section>
+        <section>
+            <h2>Additional information</h2>
+            <ul>
+                <li>+Infinity: Sign 0; Exponent 2047; Mantissa 0</li>
+                <li>-Infinity: Sign 1; Exponent 2047; Mantissa 0</li>
+                <li>NaN: Sign 0/1; Exponent 2047; Mantissa !== 0</li>
+            </ul>
+        </section>
+        <section>
+            <h2>What happens ?</h2>
+            <img data-src="../img/floatingpoint/details.png">
+        </section>
+        <section>
+            <ul>
+                <li>100 (binary) = 4. (1 x 2<sup>2</sup> + 0 x 2<sup>1</sup> + 0 x 2<sup>0</sup> = 4)</li>
+                <li>In JS numbers, any digit that exceeds the 52 bits of the mantissa are assumed to be 0</li>
+                <li>JS numbers are converted from decimal to binary</li>
+            </ul>
+        </section>
+        <section>
+            <ul>
+                <li>0.125 in decimal = 125/1000 = 1/8 = 1/2<sup>3</sup> = 0.001 in binary</li>
+                <li>0.1 in decimal = 1/10 = 1/2 * 5</li>
+                <li>0.2 in decimal = 1/20 = 1/2 * 2 * 5</li>
+            </ul>
+        </section>
+        <section>
+            <ul>
+                <li>🤔 The decimal values in our binary representation are defined using <b>2<sup>-x</sup> (or 1/2<sup>x</sup>)</b></li>
+                <li>😱 No way to cleanly find a exponent that our number goes into</li>
+                <li>🏃 We’ll continue to get back decimal/fraction results until we run out of bits</li>
+                <li>💾 When the conversion exhausts its bits, it’ll store the result</li>
+                <li>🤷‍ In this case it ends in 100 in binary or 4</li>
+            </ul>
+        </section>
+        <section>
+            <h2>How to avoid that?</h2>
+            <ul>
+                <li>Stop using JavaScript 😜</li>
+                <li>Scale up our result to an integer and scale back after</li>
+                <li>Example: 0.1 * 10, 0.2 * 10 = 1.0 + 2.0 = 3.0/10 = 0.3</li>
+            </ul>
+        </section>
+        <section>
+            <p><code>toPrecision()</code> and <code>toFixed()</code> for display purposes only</p>
+            <div data-markdown>
+                ```js
+                function foo(x, y) {
+                    return x.toPrecision() + y.toPrecision()
+                }
+
+                > foo(0.1, 0.2)
+                "0.10.2"
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Math libraries</h2>
+            <ul>
+                <li>sinful.js</li>
+                <li>math.js</li>
+                <li>BigDecimal</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Links</h2>
+            <ul>
+                <li><a href="https://github.com/denysdovhan/wtfjs">GitHub : wtfjs</a></li>
+                <li><a href="https://medium.com/@sarafecadu/64-bit-floating-point-a-javascript-story-fa6aad266665">Medium</a></li>
+                <li><a href="http://0.30000000000000004.com/">0.30...04.com</a></li>
+                <li><a href="https://modernweb.com/what-every-javascript-developer-should-know-about-floating-points/">Modern web</a></li>
+            </ul>
+        </section>
+        <section>
+            <img data-src="../img/floatingpoint/end.jpg">
+        </section>
+    </div>
+</div>
+
+<script src="../js/reveal.js"></script>
+
+<script>
+    Reveal.initialize({
+        dependencies: [
+            { src: '../plugin/markdown/marked.js' },
+            { src: '../plugin/markdown/markdown.js' },
+            { src: '../plugin/notes/notes.js', async: true },
+            { src: '../plugin/highlight/highlight.js', async: true }
+        ]
+    });
+</script>
+</body>
+</html>
