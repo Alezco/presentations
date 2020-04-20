@@ -28,3 +28,10 @@ This presentation is about floating point numbers, available [here](https://alez
 It is highly inspired by :
 - [A medium article by Sara Fecadu](https://medium.com/@sarafecadu/64-bit-floating-point-a-javascript-story-fa6aad266665)
 - [A modern web article by Brian Rinaldi](https://modernweb.com/what-every-javascript-developer-should-know-about-floating-points/)
+
+## Handling dependencies
+
+This presentation is about how to handle dependencies, available [here](https://alezco.github.io/presentations/dependencies)
+
+It is highly inspired by :
+- [A "Je suis un dev" article by Mehdi Zed](https://www.jesuisundev.com/lhistoire-vraie-dun-module-npm-hostile/)

