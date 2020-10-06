@@ -2,6 +2,8 @@ This repository contains several presentations:
 - WTF JS
 - Javascript Event Loop
 - Floating point numbers in Javascript
+- Handling dependencies
+- Angular vs React
 
 They have been done with [reveal.js](https://github.com/hakimel/reveal.js)
 
@@ -35,3 +37,12 @@ This presentation is about how to handle dependencies, available [here](https://
 
 It is highly inspired by :
 - [A "Je suis un dev" article by Mehdi Zed](https://www.jesuisundev.com/lhistoire-vraie-dun-module-npm-hostile/)
+
+## Angular vs React
+
+This presentation is about how to handle dependencies, available [here](https://alezco.github.io/presentations/ngvsreact)
+
+It is inspired by :
+- [An article about React vs. Angular](https://programmingwithmosh.com/react/react-vs-angular/)
+- [Another article about the same subject](https://www.cleveroad.com/blog/angular-vs-react)
+- [Angular vs React vs Vue](https://formationjavascript.com/angular2-vs-react/)
