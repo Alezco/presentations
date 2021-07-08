@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Handling dependencies</title>
+
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/reveal.css">
+    <link rel="stylesheet" href="../css/theme/black.css">
+
+    <link rel="stylesheet" href="../lib/css/monokai.css">
+
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? '../css/print/pdf.css' : '../css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section>
+            Clean Code in Javascript
+        </section>
+        <section>
+            <h2>Clean Code - Robert C. Martin</h2>
+            <img class="stretch" data-src="./img/clean-code.jpeg">
+        </section>
+        <section>
+            <h2>Main focuses</h2>
+            <div style="display: flex">
+                <ul>
+                    <li>Default values</li>
+                    <li>Number of arguments</li>
+                    <li>Function splitting</li>
+                    <li>Object creation</li>
+                    <li>Immutability</li>
+                </ul>
+                <ul>
+                    <li>Global functions</li>
+                    <li>typeof vs Typescript</li>
+                    <li>prototype vs High order functions</li>
+                    <li>prototype vs ES6 class</li>
+                    <li>Concurrency</li>
+                </ul>
+            </div>
+        </section>
+        <section>
+            <h2>Default values</h2>
+            <div data-markdown>
+                ```js
+                const createMicrobrewery = (name) => {
+                    const breweryName = name || "Hipster Brew Co.";
+                    // ...
+                }
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Default values</h2>
+            <div data-markdown>
+                ```js
+                const createMicrobrewery = (name = "Hipster Brew Co.") => {
+                    // ...
+                }
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Number of arguments</h2>
+            <div data-markdown>
+                ```js
+                const createMenu = (title, body, buttonText, cancellable) => {
+                    // ...
+                }
+
+                createMenu("Foo", "Bar", "Baz", true);
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Number of arguments</h2>
+            <div data-markdown>
+                ```js
+                const createMenu = ({ title, body, buttonText, cancellable }) => {
+                    // ...
+                }
+
+                createMenu({
+                    title: "Foo",
+                    body: "Bar",
+                    buttonText: "Baz",
+                    cancellable: true
+                });
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Function splitting</h2>
+            <div data-markdown>
+                ```js
+                const emailClients = (clients) => {
+                    clients.forEach(client => {
+                        const clientRecord = database.lookup(client);
+                        if (clientRecord.isActive()) {
+                            email(client);
+                        }
+                    });
+                }
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Function splitting</h2>
+            <div data-markdown>
+                ```js
+                const emailActiveClients = (clients) => {
+                    clients.filter(isActiveClient).forEach(email);
+                }
+
+                const isActiveClient = (client) => {
+                    const clientRecord = database.lookup(client);
+                    return clientRecord.isActive();
+                }
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Object creation</h2>
+            <div data-markdown>
+                ```js
+                const menuConfig = {
+                    title: null,
+                    body: "Bar",
+                    cancellable: true
+                };
+
+                const createMenu = (config) => {
+                    config.title = config.title || "Foo";
+                    config.body = config.body || "Bar";
+                    config.cancellable = config.cancellable !== undefined ? config.cancellable : true;
+                }
+
+                createMenu(menuConfig);
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Object creation</h2>
+            <div data-markdown>
+                ```js
+                const menuConfig = {
+                    title: "Order",
+                    // User did not include 'body' key
+                    cancellable: true
+                };
+                const createMenu = (config) => {
+                    const finalConfig = Object.assign({
+                        title: "Foo",
+                        body: "Bar",
+                        cancellable: true
+                    }, config);
+                    return finalConfig;
+                }
+                createMenu(menuConfig);
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Immutability</h2>
+            <div data-markdown>
+                ```js
+                const addItemToCart = (cart, item) => {
+                    cart.push({ item, date: Date.now() });
+                };
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Immutability</h2>
+            <div data-markdown>
+                ```js
+                const addItemToCart = (cart, item) => {
+                    return [...cart, { item, date: Date.now() }];
+                };
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Global functions</h2>
+            <div data-markdown>
+                ```js
+                Array.prototype.diff = function diff(comparisonArray) {
+                    const hash = new Set(comparisonArray);
+                    return this.filter(elem => !hash.has(elem));
+                };
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Global functions</h2>
+            <div data-markdown>
+                ```js
+                class SuperArray extends Array {
+                    diff(comparisonArray) {
+                        const hash = new Set(comparisonArray);
+                        return this.filter(elem => !hash.has(elem));
+                    }
+                }
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>typeof vs Typescript</h2>
+            <div data-markdown>
+                ```js
+                function combine(val1, val2) {
+                    if (
+                        (typeof val1 === "number" && typeof val2 === "number") ||
+                        (typeof val1 === "string" && typeof val2 === "string")
+                    ) {
+                        return val1 + val2;
+                    }
+
+                    throw new Error("Must be of type String or Number");
+                }
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>typeof vs Typescript</h2>
+            <div data-markdown>
+                ```js
+                function combine(val1: number | string, val2: number | string) {
+                    return val1 + val2;
+                }
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>prototype vs High order functions</h2>
+            <div data-markdown>
+                ```js
+                const Employee = (name) => {
+                    this.name = name;
+                };
+                Employee.prototype.getName = function getName() {
+                    return this.name;
+                };
+
+                const employee = new Employee("John Doe");
+                console.log(`Employee name: ${employee.getName()}`); // Employee name: John Doe
+                delete employee.name;
+                console.log(`Employee name: ${employee.getName()}`); // Employee name: undefined
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>prototype vs High order functions</h2>
+            <div data-markdown>
+                ```js
+                const makeEmployee = (name) => {
+                    return {
+                        getName() {
+                            return name;
+                        }
+                    };
+                }
+
+                const employee = makeEmployee("John Doe");
+                console.log(`Employee name: ${employee.getName()}`); // Employee name: John Doe
+                delete employee.name;
+                console.log(`Employee name: ${employee.getName()}`); // Employee name: John Doe
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>prototype vs ES6 class</h2>
+            <div data-markdown>
+                ```js
+                const Animal = (age) => {
+                    if (!(this instanceof Animal)) {
+                        throw new Error("Instantiate Animal with `new`");
+                    }
+                    this.age = age;
+                };
+
+                Animal.prototype.move = function move() {};
+
+                const Mammal = (age, furColor) => {
+                    if (!(this instanceof Mammal)) {
+                        throw new Error("Instantiate Mammal with `new`");
+                    }
+
+                    Animal.call(this, age);
+                    this.furColor = furColor;
+                };
+
+                Mammal.prototype = Object.create(Animal.prototype);
+                Mammal.prototype.constructor = Mammal;
+                Mammal.prototype.liveBirth = function liveBirth() {};
+
+                const Human = (age, furColor, languageSpoken) => {
+                    if (!(this instanceof Human)) {
+                        throw new Error("Instantiate Human with `new`");
+                    }
+                    Mammal.call(this, age, furColor);
+                    this.languageSpoken = languageSpoken;
+                };
+                Human.prototype = Object.create(Mammal.prototype);
+                Human.prototype.constructor = Human;
+                Human.prototype.speak = function speak() {};
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>prototype vs ES6 class</h2>
+            <div data-markdown>
+                ```js
+                class Animal {
+                    constructor(age) {
+                        this.age = age;
+                    }
+
+                    move() {
+                        /* ... */
+                    }
+                }
+
+                class Mammal extends Animal {
+                    constructor(age, furColor) {
+                        super(age);
+                        this.furColor = furColor;
+                    }
+
+                    liveBirth() {
+                        /* ... */
+                    }
+                }
+
+                class Human extends Mammal {
+                    constructor(age, furColor, languageSpoken) {
+                        super(age, furColor);
+                        this.languageSpoken = languageSpoken;
+                    }
+
+                    speak() {
+                        /* ... */
+                    }
+                }
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Concurrency</h2>
+            <div data-markdown>
+                ```js
+                get("https://en.wikipedia.org/wiki/Robert_Cecil_Martin", (requestErr, response, body) => {
+                    if (requestErr) {
+                        console.error(requestErr);
+                    } else {
+                        writeFile("article.html", body, writeErr => {
+                            if (writeErr) {
+                              console.error(writeErr);
+                            } else {
+                              console.log("File written");
+                            }
+                        });
+                    }
+                });
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Concurrency</h2>
+            <div data-markdown>
+                ```js
+                get("https://en.wikipedia.org/wiki/Robert_Cecil_Martin").then(body => {
+                    return writeFile("article.html", body);
+                }).then(() => {
+                    console.log("File written");
+                }).catch(err => {
+                    console.error(err);
+                });
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Concurrency</h2>
+            <div data-markdown>
+                ```js
+                async function getCleanCodeArticle() {
+                    try {
+                        const body = await get("https://en.wikipedia.org/wiki/Robert_Cecil_Martin");
+                        await writeFile("article.html", body);
+                        console.log("File written");
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+                getCleanCodeArticle()
+                ```
+            </div>
+        </section>
+        <section>
+            <h2>Links</h2>
+            <ul>
+                <li><a href="https://github.com/ryanmcdermott/clean-code-javascript">Clean Code Javascript</a></li>
+                <li><a href="https://www.abebooks.fr/Clean-Code-Handbook-Agile-Software-Craftsmanship/30705197232/bd">Clean Code - Robert C. Martin</a></li>
+            </ul>
+        </section>
+        <section>
+            <h2>Questions</h2>
+            <img class="stretch" data-src="./img/questions.gif">
+        </section>
+    </div>
+</div>
+
+<script src="../js/reveal.js"></script>
+
+<script>
+    Reveal.initialize({
+        dependencies: [
+            { src: '../plugin/markdown/marked.js' },
+            { src: '../plugin/markdown/markdown.js' },
+            { src: '../plugin/notes/notes.js', async: true },
+            { src: '../plugin/highlight/highlight.js', async: true }
+        ]
+    });
+</script>
+</body>
+</html>

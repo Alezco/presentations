@@ -46,3 +46,10 @@ It is inspired by :
 - [An article about React vs. Angular](https://programmingwithmosh.com/react/react-vs-angular/)
 - [Another article about the same subject](https://www.cleveroad.com/blog/angular-vs-react)
 - [Angular vs React vs Vue](https://formationjavascript.com/angular2-vs-react/)
+
+## Clean Code in JS
+
+This presentation is about Clean Code principles applied to JS, available [here](https://alezco.github.io/presentations/cleancodejs)
+
+It is highly inspired by :
+- [The Clean Code Javascript repository by Ryan McDermott](https://github.com/ryanmcdermott/clean-code-javascript)
